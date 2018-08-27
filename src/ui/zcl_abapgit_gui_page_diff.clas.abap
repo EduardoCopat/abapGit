@@ -134,7 +134,7 @@ CLASS zcl_abapgit_gui_page_diff IMPLEMENTATION.
 
     " Changed by
     IF <ls_local>-item-obj_type IS NOT INITIAL.
-      <ls_diff>-changed_by = to_lower( zcl_abapgit_objects=>changed_by( <ls_local>-item ) ).
+      <ls_diff>-changed_by = to_lower( zcl_abapgit_objects=>changed_by( <ls_local> ) ).
     ENDIF.
 
     " Extension

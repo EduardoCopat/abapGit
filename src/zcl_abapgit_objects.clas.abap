@@ -53,7 +53,7 @@ CLASS zcl_abapgit_objects DEFINITION
         zcx_abapgit_exception .
     CLASS-METHODS changed_by
       IMPORTING
-        !is_item       TYPE zif_abapgit_definitions=>ty_item
+        is_file_item       TYPE zif_abapgit_definitions=>ty_file_item
       RETURNING
         VALUE(rv_user) TYPE xubname
       RAISING
@@ -214,11 +214,11 @@ CLASS ZCL_ABAPGIT_OBJECTS IMPLEMENTATION.
     DATA: li_obj TYPE REF TO zif_abapgit_object.
 
 
-    IF is_item IS INITIAL.
+    IF is_file_item-item IS INITIAL.
 * eg. ".abapgit.xml" file
       rv_user = zcl_abapgit_objects_super=>c_user_unknown.
     ELSE.
-      li_obj = create_object( is_item     = is_item
+      li_obj = create_object( is_item     = is_file_item-item
                               iv_language = zif_abapgit_definitions=>c_english ).
       rv_user = li_obj->changed_by( ).
     ENDIF.

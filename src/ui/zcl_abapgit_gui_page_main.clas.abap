@@ -287,9 +287,9 @@ CLASS zcl_abapgit_gui_page_main IMPLEMENTATION.
 
   METHOD test_changed_by.
 
-    DATA: ls_tadir TYPE zif_abapgit_definitions=>ty_tadir,
-          lv_user  TYPE xubname,
-          ls_item  TYPE zif_abapgit_definitions=>ty_item.
+    DATA: ls_tadir      TYPE zif_abapgit_definitions=>ty_tadir,
+          lv_user       TYPE xubname,
+          ls_file_item  TYPE zif_abapgit_definitions=>ty_file_item.
 
 
     ls_tadir = zcl_abapgit_ui_factory=>get_popups( )->popup_object( ).
@@ -297,10 +297,10 @@ CLASS zcl_abapgit_gui_page_main IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    ls_item-obj_type = ls_tadir-object.
-    ls_item-obj_name = ls_tadir-obj_name.
+    ls_file_item-item-obj_type = ls_tadir-object.
+    ls_file_item-item-obj_name = ls_tadir-obj_name.
 
-    lv_user = zcl_abapgit_objects=>changed_by( ls_item ).
+    lv_user = zcl_abapgit_objects=>changed_by( ls_file_item ).
 
     MESSAGE lv_user TYPE 'S'.
 

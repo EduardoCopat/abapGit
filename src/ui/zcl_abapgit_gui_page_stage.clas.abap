@@ -115,13 +115,11 @@ CLASS ZCL_ABAPGIT_GUI_PAGE_STAGE IMPLEMENTATION.
 
 
     LOOP AT it_local INTO ls_local WHERE NOT item IS INITIAL.
+      CLEAR ls_changed_by.
       ls_changed_by-item = ls_local-item.
       INSERT ls_changed_by INTO TABLE rt_changed_by.
-    ENDLOOP.
-
-    LOOP AT rt_changed_by ASSIGNING <ls_changed_by>.
       TRY.
-          <ls_changed_by>-name = to_lower( zcl_abapgit_objects=>changed_by( <ls_changed_by>-item ) ).
+          ls_changed_by-name = to_lower( zcl_abapgit_objects=>changed_by( ls_local ) ).
         CATCH zcx_abapgit_exception.
       ENDTRY.
     ENDLOOP.
