@@ -597,18 +597,31 @@ CLASS ZCL_ABAPGIT_OBJECTS IMPLEMENTATION.
       CLEAR: lv_path, lv_package.
     ENDLOOP.
 
-    deserialize_objects( EXPORTING it_objects = lt_ddic
+    DATA lt_all like lt_ddic.
+
+    APPEND LINES OF lt_ddic TO lt_all.
+    APPEND LINES OF lt_rest TO lt_all.
+    APPEND LINES OF lt_late TO lt_all.
+
+   deserialize_objects( EXPORTING it_objects = lt_all
                                    iv_ddic    = abap_true
-                                   iv_descr   = 'DDIC'
+                                   iv_descr   = 'ALL'
                          CHANGING ct_files = rt_accessed_files ).
 
-    deserialize_objects( EXPORTING it_objects = lt_rest
-                                   iv_descr   = 'Objects'
-                         CHANGING ct_files = rt_accessed_files ).
-
-    deserialize_objects( EXPORTING it_objects = lt_late
-                                   iv_descr   = 'Late'
-                         CHANGING ct_files = rt_accessed_files ).
+*
+*
+*    deserialize_objects( EXPORTING it_objects = lt_ddic
+*                                   iv_ddic    = abap_true
+*                                   iv_descr   = 'DDIC'
+*                         CHANGING ct_files = rt_accessed_files ).
+*
+*    deserialize_objects( EXPORTING it_objects = lt_rest
+*                                   iv_descr   = 'Objects'
+*                         CHANGING ct_files = rt_accessed_files ).
+*
+*    deserialize_objects( EXPORTING it_objects = lt_late
+*                                   iv_descr   = 'Late'
+*                         CHANGING ct_files = rt_accessed_files ).
 
     update_package_tree( io_repo->get_package( ) ).
 

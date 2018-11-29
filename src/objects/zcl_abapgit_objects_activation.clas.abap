@@ -162,21 +162,71 @@ CLASS ZCL_ABAPGIT_OBJECTS_ACTIVATION IMPLEMENTATION.
       EXPORTING
         iv_total = 100.
 
-    IF iv_ddic = abap_true.
 
-      lo_progress->show( iv_current = 98
-                         iv_text    = 'Activating DDIC' ).
 
-      activate_ddic( ).
+*    IF iv_ddic = abap_true.
+*
+*      lo_progress->show( iv_current = 98
+*                         iv_text    = 'Activating DDIC' ).
+*
+*      activate_ddic( ).
+*
+*    ELSE.
+*
+*      lo_progress->show( iv_current = 98
+*                         iv_text    = 'Activating non DDIC' ).
+*
+*      activate_old( ).
+*
+*    ENDIF.
 
-    ELSE.
+    DATA lo_multiphase_activation type ref to cl_wb_multiphase_activation.
+    data lt_inactive_objects type DWINACTIV_TAB.
+    DATA ls_inactive_object type line of dwinactiv_tab.
+    data ls_object like line of gt_objects.
 
-      lo_progress->show( iv_current = 98
-                         iv_text    = 'Activating non DDIC' ).
+    lo_multiphase_activation = CL_WB_MULTIPHASE_ACTIVATION=>get_instance( 'SNOTE_BATCH' ).
 
-      activate_old( ).
+    LOOP AT gt_objects into ls_object.
+      CLEAR ls_inactive_object.
+      ls_inactive_object-object   = ls_object-object.
+      ls_inactive_object-obj_name = ls_object-obj_name.
+      ls_inactive_object-delet_flag = ls_object-delet_flag.
+      ls_inactive_object-uname = ls_object-uname.
+      append ls_inactive_object to lt_inactive_objects.
+    endloop.
 
+
+
+    lo_multiphase_activation->activate(
+      EXPORTING
+        p_objects               = lt_inactive_objects
+*        p_removal               = ABAP_FALSE    " Activation After Object Removal
+*        p_suppress_syntax_check = ABAP_FALSE
+*        p_suppress_insert       = ABAP_FALSE
+*        p_suppress_corr_insert  = ABAP_FALSE
+*        p_ui_decoupled          = ABAP_FALSE
+*        p_suppress_enqueue      = ABAP_FALSE
+*        p_no_dialog             = ABAP_FALSE
+*        p_suppress_generation   = ABAP_TRUE
+*        p_display_sysid         = ABAP_FALSE
+*        p_context               =
+*      IMPORTING
+*        p_checklist             =     " List of All Error Messages from a Syntax Check
+*        p_message_container     =
+*        p_phase_reports         =     " Process Information for Each Phase
+*        p_no_force_activation   =
+      EXCEPTIONS
+        cancelled               = 1
+        insert_into_corr_error  = 2
+        execution_error         = 3
+        others                  = 4
+    ).
+    IF sy-subrc <> 0.
+     MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
+                WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
     ENDIF.
+
 
   ENDMETHOD.
 
@@ -193,6 +243,7 @@ CLASS ZCL_ABAPGIT_OBJECTS_ACTIVATION IMPLEMENTATION.
         EXPORTING
           activate_ddic_objects  = iv_ddic
           with_popup             = lv_popup
+          phased_activation      = abap_true
         TABLES
           objects                = gt_objects
         EXCEPTIONS
