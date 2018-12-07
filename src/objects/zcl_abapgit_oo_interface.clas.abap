@@ -6,9 +6,15 @@ CLASS zcl_abapgit_oo_interface DEFINITION PUBLIC
       zif_abapgit_oo_object_fnc~get_includes REDEFINITION,
       zif_abapgit_oo_object_fnc~get_interface_properties REDEFINITION,
       zif_abapgit_oo_object_fnc~delete REDEFINITION.
+protected section.
+private section.
 ENDCLASS.
 
-CLASS zcl_abapgit_oo_interface IMPLEMENTATION.
+
+
+CLASS ZCL_ABAPGIT_OO_INTERFACE IMPLEMENTATION.
+
+
   METHOD zif_abapgit_oo_object_fnc~create.
     DATA: lt_vseoattrib TYPE seoo_attributes_r.
     FIELD-SYMBOLS: <lv_clsname> TYPE seoclsname.
@@ -24,6 +30,7 @@ CLASS zcl_abapgit_oo_interface IMPLEMENTATION.
       EXPORTING
         devclass        = iv_package
         overwrite       = iv_overwrite
+        version         = seoc_version_active
       CHANGING
         interface       = cg_properties
         attributes      = lt_vseoattrib
@@ -40,11 +47,30 @@ CLASS zcl_abapgit_oo_interface IMPLEMENTATION.
     ENDIF.
   ENDMETHOD.
 
+
+  METHOD zif_abapgit_oo_object_fnc~delete.
+    CALL FUNCTION 'SEO_INTERFACE_DELETE_COMPLETE'
+      EXPORTING
+        intkey       = is_deletion_key
+      EXCEPTIONS
+        not_existing = 1
+        is_class     = 2
+        db_error     = 3
+        no_access    = 4
+        other        = 5
+        OTHERS       = 6.
+    IF sy-subrc <> 0.
+      zcx_abapgit_exception=>raise( 'Error from SEO_INTERFACE_DELETE_COMPLETE' ).
+    ENDIF.
+  ENDMETHOD.
+
+
   METHOD zif_abapgit_oo_object_fnc~get_includes.
     DATA lv_interface_name TYPE seoclsname.
     lv_interface_name = iv_object_name.
     APPEND cl_oo_classname_service=>get_interfacepool_name( lv_interface_name ) TO rt_includes.
   ENDMETHOD.
+
 
   METHOD zif_abapgit_oo_object_fnc~get_interface_properties.
     CALL FUNCTION 'SEO_CLIF_GET'
@@ -62,22 +88,6 @@ CLASS zcl_abapgit_oo_interface IMPLEMENTATION.
       RETURN. " in case only inactive version exists
     ELSEIF sy-subrc <> 0.
       zcx_abapgit_exception=>raise( 'error from seo_clif_get' ).
-    ENDIF.
-  ENDMETHOD.
-
-  METHOD zif_abapgit_oo_object_fnc~delete.
-    CALL FUNCTION 'SEO_INTERFACE_DELETE_COMPLETE'
-      EXPORTING
-        intkey       = is_deletion_key
-      EXCEPTIONS
-        not_existing = 1
-        is_class     = 2
-        db_error     = 3
-        no_access    = 4
-        other        = 5
-        OTHERS       = 6.
-    IF sy-subrc <> 0.
-      zcx_abapgit_exception=>raise( 'Error from SEO_INTERFACE_DELETE_COMPLETE' ).
     ENDIF.
   ENDMETHOD.
 ENDCLASS.

@@ -597,6 +597,10 @@ CLASS ZCL_ABAPGIT_OBJECTS IMPLEMENTATION.
       CLEAR: lv_path, lv_package.
     ENDLOOP.
 
+    deserialize_objects( EXPORTING it_objects = lt_rest
+                                   iv_descr   = 'Objects'
+                         CHANGING ct_files = rt_accessed_files ).
+
     deserialize_objects( EXPORTING it_objects = lt_ddic
                                    iv_ddic    = abap_true
                                    iv_descr   = 'DDIC'
